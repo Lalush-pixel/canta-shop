@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canta Art Café · חנות</title>
+<style>
+  :root {
+    /* Canta Art Café palette */
+    --bg: #f5e3c0;          /* warm cream/sand */
+    --bg-deep: #ecc88f;     /* deeper sand */
+    --card: #fdf6e6;        /* light cream card */
+    --ink: #3a1f1a;         /* dark burgundy ink */
+    --muted: #8a6a52;       /* warm brown muted */
+    --accent: #6e2920;      /* deep burgundy */
+    --accent-dark: #4f1c16; /* darker burgundy */
+    --accent-soft: #a04a3e; /* softer wine */
+    --good: #5a7a4a;
+    --warn: #b8742a;
+    --bad: #8b2e22;
+    --border: #d9c19a;      /* warm tan border */
+    --border-soft: #e8d4b0;
+    --shadow: 0 2px 12px rgba(110,41,32,.10);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Heebo", "Arial Hebrew", Arial, sans-serif;
+    background: var(--bg);
+    background-image:
+      radial-gradient(at 20% 0%, rgba(236,200,143,.6) 0%, transparent 50%),
+      radial-gradient(at 80% 100%, rgba(245,227,192,.8) 0%, transparent 50%);
+    color: var(--ink); min-height: 100vh;
+  }
+  header {
+    background: var(--card); border-bottom: 2px solid var(--accent);
+    padding: 14px 22px; display: flex; align-items: center; gap: 14px;
+    box-shadow: var(--shadow); position: sticky; top: 0; z-index: 50;
+  }
+  header .brand { display: flex; align-items: center; gap: 12px; flex: 1; }
+  header .logo { width: 56px; height: 56px; flex-shrink: 0; }
+  header .brand-text h1 { margin: 0; font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: 1px; }
+  header .brand-text .subtitle { font-size: 12px; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; }
+  header .nav-btn {
+    background: transparent; border: 1.5px solid var(--accent); border-radius: 999px;
+    padding: 8px 18px; cursor: pointer; font-size: 14px; color: var(--accent); font-weight: 500;
+  }
+  header .nav-btn.active { background: var(--accent); color: var(--card); }
+  header .nav-btn:hover:not(.active) { background: rgba(110,41,32,.08); }
+
+  main { padding: 22px; max-width: 1400px; margin: 0 auto; }
+
+  /* Tabs inside manager */
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; border-bottom: 2px solid var(--border); }
+  .tab { padding: 10px 16px; cursor: pointer; border-bottom: 3px solid transparent; color: var(--muted); font-size: 15px; margin-bottom: -2px; }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab:hover:not(.active) { color: var(--accent-soft); }
+
+  /* Cards */
+  .card { background: var(--card); border-radius: 14px; padding: 20px; box-shadow: var(--shadow); border: 1px solid var(--border-soft); }
+  .grid { display: grid; gap: 16px; }
+  .grid-products { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .grid-stats { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+  /* Product card (tablet view) */
+  .product {
+    background: var(--card); border: 1.5px solid var(--border); border-radius: 14px;
+    padding: 16px; cursor: pointer; transition: all .15s; position: relative;
+    display: flex; flex-direction: column; min-height: 200px;
+  }
+  .product:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(110,41,32,.15); border-color: var(--accent); }
+  .product.out-of-stock { opacity: .45; cursor: not-allowed; }
+  .product .emoji { font-size: 48px; text-align: center; margin: 8px 0; }
+  .product .name { font-weight: 600; margin: 4px 0; min-height: 42px; color: var(--ink); }
+  .product .meta { color: var(--muted); font-size: 13px; }
+  .product .price { font-size: 22px; color: var(--accent); font-weight: 700; margin-top: 8px; font-family: Georgia, serif; }
+  .product .stock-badge {
+    position: absolute; top: 10px; left: 10px;
+    background: var(--good); color: var(--card); padding: 3px 10px; border-radius: 999px; font-size: 12px;
+  }
+  .product .stock-badge.low { background: var(--warn); }
+  .product .stock-badge.out { background: var(--bad); }
+  .product .type-badge {
+    position: absolute; top: 10px; right: 10px;
+    font-size: 11px; padding: 3px 8px; border-radius: 999px;
+    background: var(--bg); color: var(--accent); border: 1px solid var(--border);
+  }
+  .product .type-badge.artist { background: var(--accent); color: var(--card); border-color: var(--accent); }
+
+  /* Buttons */
+  .btn {
+    background: var(--accent); color: var(--card); border: none; padding: 10px 18px;
+    border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 500;
+    transition: all .15s;
+  }
+  .btn:hover { background: var(--accent-dark); transform: translateY(-1px); }
+  .btn.secondary { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+  .btn.secondary:hover { background: var(--accent); color: var(--card); }
+  .btn.ghost { background: transparent; color: var(--muted); border: none; padding: 6px 10px; }
+  .btn.ghost:hover { color: var(--accent); }
+  .btn.small { padding: 6px 12px; font-size: 13px; }
+  .btn.danger { background: var(--bad); }
+  .btn.danger:hover { background: #6b2218; }
+
+  /* Inputs */
+  input, select, textarea {
+    font-family: inherit; font-size: 15px; padding: 9px 12px;
+    border: 1px solid var(--border); border-radius: 8px; background: white;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+  label { display: block; margin-bottom: 4px; font-size: 13px; color: var(--muted); }
+  .field { margin-bottom: 12px; }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .row > * { flex: 1; min-width: 140px; }
+
+  /* Modal */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,.4);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
+    padding: 20px;
+  }
+  .modal {
+    background: var(--card); border-radius: 16px; max-width: 520px; width: 100%;
+    max-height: 90vh; overflow-y: auto; padding: 24px;
+  }
+  .modal h2 { margin: 0 0 16px; color: var(--accent-dark); }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; }
+  th, td { padding: 10px 12px; text-align: right; border-bottom: 1px solid var(--border-soft); }
+  th { background: var(--bg-deep); font-weight: 600; color: var(--accent-dark); font-size: 13px; }
+  tr:hover { background: rgba(245,227,192,.4); }
+
+  /* Stats card */
+  .stat { background: var(--card); border: 1.5px solid var(--border-soft); border-radius: 12px; padding: 18px; border-top: 3px solid var(--accent); }
+  .stat .label { color: var(--muted); font-size: 13px; }
+  .stat .value { font-size: 28px; font-weight: 700; color: var(--accent); margin-top: 4px; font-family: Georgia, serif; }
+  .stat.alert { border-top-color: var(--bad); }
+  .stat.alert .value { color: var(--bad); }
+  .stat.good { border-top-color: var(--good); }
+  .stat.good .value { color: var(--good); }
+
+  /* Filter bar */
+  .filterbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .filterbar input, .filterbar select { width: auto; flex: 1; min-width: 140px; }
+
+  /* Login */
+  .login-wrap { max-width: 360px; margin: 60px auto; text-align: center; background: var(--card); padding: 40px 32px; border-radius: 16px; border: 1.5px solid var(--border); box-shadow: var(--shadow); }
+  .login-wrap .lock { font-size: 48px; margin-bottom: 12px; }
+  .login-wrap h2 { color: var(--accent); margin: 8px 0; }
+  .login-wrap .login-logo { width: 80px; height: 80px; margin: 0 auto 12px; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 40px; color: var(--muted); }
+  .empty .icon { font-size: 56px; opacity: .5; margin-bottom: 8px; }
+
+  .pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+  .pill.cafe { background: rgba(110,41,32,.08); color: var(--accent); border-color: var(--accent); }
+  .pill.artist { background: var(--accent); color: var(--card); border-color: var(--accent); }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--ink); color: white; padding: 12px 22px; border-radius: 10px;
+    z-index: 200; opacity: 0; transition: opacity .25s;
+  }
+  .toast.show { opacity: 1; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+  .quantity-selector { display: flex; align-items: center; justify-content: center; gap: 16px; margin: 20px 0; }
+  .quantity-selector button { width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--border); background: white; font-size: 22px; cursor: pointer; }
+  .quantity-selector .q { font-size: 28px; font-weight: 700; min-width: 50px; text-align: center; }
+
+  .alert-banner {
+    background: #fdf2e8; border: 1px solid #f3d6b5; color: #8a5d2a;
+    padding: 12px 16px; border-radius: 10px; margin-bottom: 16px;
+  }
+
+  @media (max-width: 600px) {
+    main { padding: 12px; }
+    header { padding: 12px; }
+    header h1 { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-label="Canta Art Café">
+      <defs>
+        <pattern id="ornament" x="0" y="0" width="14" height="14" patternUnits="userSpaceOnUse">
+          <path d="M0 7 Q3.5 0 7 7 T14 7" stroke="#6e2920" stroke-width="1" fill="none"/>
+          <circle cx="7" cy="7" r="1" fill="#6e2920"/>
+        </pattern>
+      </defs>
+      <!-- Outer diamond -->
+      <polygon points="100,18 182,100 100,182 18,100"
+        fill="url(#ornament)" stroke="#6e2920" stroke-width="3"/>
+      <!-- Inner cream diamond -->
+      <polygon points="100,42 158,100 100,158 42,100"
+        fill="#f5e3c0" stroke="#6e2920" stroke-width="2"/>
+      <!-- Decorative accents -->
+      <path d="M100,52 Q92,62 100,72 Q108,62 100,52" fill="#6e2920"/>
+      <path d="M100,148 Q92,138 100,128 Q108,138 100,148" fill="#6e2920"/>
+      <!-- Text -->
+      <text x="100" y="98" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#6e2920" letter-spacing="2">CANTA</text>
+      <line x1="62" y1="108" x2="138" y2="108" stroke="#6e2920" stroke-width="0.8"/>
+      <text x="100" y="124" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-style="italic" fill="#6e2920" letter-spacing="1">Art Café</text>
+    </svg>
+    <div class="brand-text">
+      <h1>CANTA</h1>
+      <div class="subtitle">Art Café · חנות</div>
+    </div>
+  </div>
+  <button class="nav-btn active" data-view="shop">מכירות</button>
+  <button class="nav-btn" data-view="manager">ניהול</button>
+</header>
+
+<main id="app"></main>
+
+<div id="modal-root"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+// ============================================================
+// DATA LAYER
+// ============================================================
+const STORAGE_KEY = 'cafe_shop_db_v1';
+
+const defaultDB = {
+  password: '1234',
+  cafeShareDefault: 0.2,
+  categories: ['אמנות', 'גלויות', 'בגדי יד שניה', 'תכשיטים', 'ספרים', 'קרמיקה', 'אחר'],
+  products: [],
+  suppliers: [],
+  sales: [],
+  inventoryLog: []
+};
+
+function loadDB() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return JSON.parse(JSON.stringify(defaultDB));
+    const data = JSON.parse(raw);
+    // ensure all fields
+    for (const k in defaultDB) {
+      if (!(k in data)) data[k] = JSON.parse(JSON.stringify(defaultDB[k]));
+    }
+    return data;
+  } catch (e) {
+    return JSON.parse(JSON.stringify(defaultDB));
+  }
+}
+
+function saveDB() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+}
+
+let db = loadDB();
+let currentView = 'shop';
+let managerTab = 'dashboard';
+let isManagerLoggedIn = false;
+
+// ============================================================
+// HELPERS
+// ============================================================
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const fmt = n => new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(n || 0);
+const fmtDate = d => new Date(d).toLocaleDateString('he-IL');
+const fmtDateTime = d => new Date(d).toLocaleString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function escapeHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function modal(html) {
+  const root = $('#modal-root');
+  root.innerHTML = `<div class="modal-bg" onclick="if(event.target===this)closeModal()"><div class="modal">${html}</div></div>`;
+}
+function closeModal() { $('#modal-root').innerHTML = ''; }
+
+function calcSaleSplit(product, total) {
+  if (product.type === 'artist') {
+    const share = (product.cafeShare ?? db.cafeShareDefault);
+    const cafeProfit = total * share;
+    const supplierPayout = total - cafeProfit;
+    return { cafeProfit, supplierPayout };
+  }
+  // cafe-owned
+  const cost = (product.cost || 0);
+  return { cafeProfit: total - cost, supplierPayout: 0 };
+}
+
+function getStockStatus(p) {
+  if (p.stock <= 0) return 'out';
+  if (p.stock <= (p.minStock || 0)) return 'low';
+  return 'ok';
+}
+
+// ============================================================
+// RENDER ROUTER
+// ============================================================
+function render() {
+  $$('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === currentView));
+  if (currentView === 'shop') renderShop();
+  else if (currentView === 'manager') {
+    if (!isManagerLoggedIn) renderLogin();
+    else renderManager();
+  }
+}
+
+document.addEventListener('click', e => {
+  const nb = e.target.closest('.nav-btn');
+  if (nb) {
+    currentView = nb.dataset.view;
+    render();
+  }
+});
+
+// ============================================================
+// SHOP / TABLET VIEW
+// ============================================================
+function renderShop() {
+  const products = db.products.slice().sort((a, b) => a.name.localeCompare(b.name, 'he'));
+  const cats = ['הכל', ...db.categories];
+  const sel = window._shopFilter || { cat: 'הכל', q: '' };
+
+  let filtered = products.filter(p => sel.cat === 'הכל' || p.category === sel.cat);
+  if (sel.q) {
+    const q = sel.q.toLowerCase();
+    filtered = filtered.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      (p.supplierName || '').toLowerCase().includes(q)
+    );
+  }
+
+  $('#app').innerHTML = `
+    <div class="filterbar">
+      <input type="search" placeholder="חיפוש מוצר או אמן..." value="${escapeHtml(sel.q)}" id="shop-search">
+      <select id="shop-cat">
+        ${cats.map(c => `<option ${c===sel.cat?'selected':''}>${escapeHtml(c)}</option>`).join('')}
+      </select>
+    </div>
+    ${filtered.length === 0 ? `
+      <div class="empty">
+        <div class="icon">🛍️</div>
+        <p>אין כאן מוצרים עדיין.<br>אפשר להוסיף מוצרים מתוך עמוד הניהול.</p>
+      </div>
+    ` : `
+      <div class="grid grid-products">
+        ${filtered.map(p => {
+          const status = getStockStatus(p);
+          return `
+            <div class="product ${status === 'out' ? 'out-of-stock' : ''}" data-pid="${p.id}">
+              <span class="stock-badge ${status === 'low' ? 'low' : status === 'out' ? 'out' : ''}">
+                ${status === 'out' ? 'אזל' : `${p.stock} במלאי`}
+              </span>
+              <span class="type-badge ${p.type === 'artist' ? 'artist' : ''}">
+                ${p.type === 'artist' ? '🎨 אמן/ית' : '☕ הקפה'}
+              </span>
+              <div class="emoji">${p.emoji || '📦'}</div>
+              <div class="name">${escapeHtml(p.name)}</div>
+              <div class="meta">${escapeHtml(p.category || '')}${p.supplierName ? ' · ' + escapeHtml(p.supplierName) : ''}</div>
+              <div class="price">${fmt(p.price)}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `}
+  `;
+
+  $('#shop-search').oninput = e => { window._shopFilter = { ...sel, q: e.target.value }; renderShop(); };
+  $('#shop-cat').onchange = e => { window._shopFilter = { ...sel, cat: e.target.value }; renderShop(); };
+  $$('.product').forEach(el => {
+    el.onclick = () => {
+      const p = db.products.find(x => x.id === el.dataset.pid);
+      if (p && p.stock > 0) openSaleModal(p);
+    };
+  });
+}
+
+function openSaleModal(product) {
+  let qty = 1;
+  const draw = () => {
+    const total = qty * product.price;
+    const split = calcSaleSplit(product, total);
+    modal(`
+      <h2>רישום מכירה</h2>
+      <div style="text-align:center; font-size:48px;">${product.emoji || '📦'}</div>
+      <h3 style="text-align:center; margin:8px 0;">${escapeHtml(product.name)}</h3>
+      <p style="text-align:center; color:var(--muted); margin:0 0 8px;">
+        ${fmt(product.price)} · ${product.stock} במלאי
+      </p>
+      <div class="quantity-selector">
+        <button id="q-minus" ${qty<=1?'disabled':''}>−</button>
+        <span class="q">${qty}</span>
+        <button id="q-plus" ${qty>=product.stock?'disabled':''}>+</button>
+      </div>
+      <div class="card" style="background:var(--bg); padding:14px;">
+        <div style="display:flex; justify-content:space-between;"><span>סה״כ:</span><strong>${fmt(total)}</strong></div>
+        ${product.type === 'artist' ? `
+          <div style="display:flex; justify-content:space-between; color:var(--muted); font-size:13px; margin-top:4px;">
+            <span>לקפה (${Math.round((product.cafeShare ?? db.cafeShareDefault)*100)}%):</span>
+            <span>${fmt(split.cafeProfit)}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; color:var(--muted); font-size:13px;">
+            <span>ל${escapeHtml(product.supplierName || 'אמן/ית')}:</span>
+            <span>${fmt(split.supplierPayout)}</span>
+          </div>
+        ` : `
+          <div style="display:flex; justify-content:space-between; color:var(--muted); font-size:13px; margin-top:4px;">
+            <span>רווח לקפה:</span>
+            <span>${fmt(split.cafeProfit)}</span>
+          </div>
+        `}
+      </div>
+      <div class="field" style="margin-top:14px;">
+        <label>שם המוכר/ת (אופציונלי)</label>
+        <input id="sold-by" type="text" placeholder="מי רשמ/ה את המכירה">
+      </div>
+      <div class="row" style="margin-top:12px;">
+        <button class="btn secondary" onclick="closeModal()">ביטול</button>
+        <button class="btn" id="confirm-sale">רישום מכירה</button>
+      </div>
+    `);
+    $('#q-minus').onclick = () => { if (qty > 1) { qty--; draw(); } };
+    $('#q-plus').onclick = () => { if (qty < product.stock) { qty++; draw(); } };
+    $('#confirm-sale').onclick = () => {
+      recordSale(product, qty, $('#sold-by').value.trim());
+      closeModal();
+      renderShop();
+    };
+  };
+  draw();
+}
+
+function recordSale(product, qty, soldBy) {
+  const total = qty * product.price;
+  const split = calcSaleSplit(product, total);
+  const sale = {
+    id: uid(),
+    productId: product.id,
+    productName: product.name,
+    qty,
+    unitPrice: product.price,
+    total,
+    type: product.type,
+    supplierId: product.supplierId || null,
+    supplierName: product.supplierName || '',
+    cafeShare: product.cafeShare ?? db.cafeShareDefault,
+    cost: (product.cost || 0) * qty,
+    cafeProfit: split.cafeProfit,
+    supplierPayout: split.supplierPayout,
+    paidToSupplier: false,
+    date: new Date().toISOString(),
+    soldBy: soldBy || ''
+  };
+  db.sales.push(sale);
+  product.stock -= qty;
+  db.inventoryLog.push({
+    id: uid(), productId: product.id, productName: product.name,
+    change: -qty, reason: 'sale', date: sale.date, notes: `מכירה #${sale.id.slice(-4)}`
+  });
+  saveDB();
+  toast(`נרשמה מכירה: ${qty} × ${product.name}`);
+}
+
+// ============================================================
+// LOGIN
+// ============================================================
+function renderLogin() {
+  $('#app').innerHTML = `
+    <div class="login-wrap">
+      <svg class="login-logo" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="100,18 182,100 100,182 18,100" fill="none" stroke="#6e2920" stroke-width="3"/>
+        <polygon points="100,42 158,100 100,158 42,100" fill="none" stroke="#6e2920" stroke-width="2"/>
+        <text x="100" y="98" text-anchor="middle" font-family="Georgia, serif" font-size="22" font-weight="700" fill="#6e2920" letter-spacing="2">CANTA</text>
+        <line x1="62" y1="108" x2="138" y2="108" stroke="#6e2920" stroke-width="0.8"/>
+        <text x="100" y="124" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-style="italic" fill="#6e2920">Art Café</text>
+      </svg>
+      <h2>כניסה לעמוד הניהול</h2>
+      <p style="color:var(--muted);">הזיני סיסמה כדי להמשיך</p>
+      <div class="field"><input type="password" id="pwd" placeholder="סיסמה" autofocus></div>
+      <button class="btn" id="login-btn" style="width:100%;">כניסה</button>
+      <p style="color:var(--muted); font-size:13px; margin-top:18px;">ברירת מחדל: 1234 (אפשר לשנות בהגדרות)</p>
+    </div>
+  `;
+  const tryLogin = () => {
+    if ($('#pwd').value === db.password) {
+      isManagerLoggedIn = true;
+      render();
+    } else {
+      toast('סיסמה שגויה');
+      $('#pwd').value = '';
+    }
+  };
+  $('#login-btn').onclick = tryLogin;
+  $('#pwd').onkeydown = e => { if (e.key === 'Enter') tryLogin(); };
+}
+
+// ============================================================
+// MANAGER VIEW
+// ============================================================
+function renderManager() {
+  const tabs = [
+    { id: 'dashboard', label: '📊 סקירה' },
+    { id: 'products', label: '📦 מוצרים' },
+    { id: 'sales', label: '💰 מכירות' },
+    { id: 'suppliers', label: '🎨 ספקים ואמנים' },
+    { id: 'report', label: '📅 דוח חודשי' },
+    { id: 'inventory', label: '📋 היסטוריית מלאי' },
+    { id: 'settings', label: '⚙️ הגדרות' }
+  ];
+  $('#app').innerHTML = `
+    <div class="tabs">
+      ${tabs.map(t => `<div class="tab ${t.id===managerTab?'active':''}" data-mtab="${t.id}">${t.label}</div>`).join('')}
+      <div style="flex:1;"></div>
+      <button class="btn ghost" id="logout-btn">יציאה</button>
+    </div>
+    <div id="manager-content"></div>
+  `;
+  $$('.tab').forEach(t => t.onclick = () => { managerTab = t.dataset.mtab; renderManager(); });
+  $('#logout-btn').onclick = () => { isManagerLoggedIn = false; render(); };
+
+  switch (managerTab) {
+    case 'dashboard': renderDashboard(); break;
+    case 'products': renderProducts(); break;
+    case 'sales': renderSales(); break;
+    case 'suppliers': renderSuppliers(); break;
+    case 'report': renderMonthlyReport(); break;
+    case 'inventory': renderInventoryLog(); break;
+    case 'settings': renderSettings(); break;
+  }
+}
+
+// ---------- Dashboard ----------
+function renderDashboard() {
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthSales = db.sales.filter(s => new Date(s.date) >= monthStart);
+  const totalRevenue = monthSales.reduce((a, s) => a + s.total, 0);
+  const totalCafeProfit = monthSales.reduce((a, s) => a + s.cafeProfit, 0);
+  const totalArtistPayout = monthSales.reduce((a, s) => a + s.supplierPayout, 0);
+  const itemsSold = monthSales.reduce((a, s) => a + s.qty, 0);
+
+  const lowStock = db.products.filter(p => getStockStatus(p) !== 'ok');
+  const totalStockValue = db.products.reduce((a, p) => a + (p.stock * p.price), 0);
+
+  // Top products this month
+  const productSales = {};
+  monthSales.forEach(s => {
+    if (!productSales[s.productId]) productSales[s.productId] = { name: s.productName, qty: 0, revenue: 0 };
+    productSales[s.productId].qty += s.qty;
+    productSales[s.productId].revenue += s.total;
+  });
+  const topProducts = Object.values(productSales).sort((a, b) => b.revenue - a.revenue).slice(0, 5);
+
+  $('#manager-content').innerHTML = `
+    <h2 style="margin-top:0;">סקירה - ${now.toLocaleDateString('he-IL', { month: 'long', year: 'numeric' })}</h2>
+
+    ${lowStock.length > 0 ? `
+      <div class="alert-banner">
+        ⚠️ <strong>${lowStock.length}</strong> מוצרים במלאי נמוך או אזלו:
+        ${lowStock.map(p => escapeHtml(p.name)).slice(0, 5).join(', ')}${lowStock.length > 5 ? '...' : ''}
+      </div>
+    ` : ''}
+
+    <div class="grid grid-stats" style="margin-bottom:20px;">
+      <div class="stat good"><div class="label">הכנסות החודש</div><div class="value">${fmt(totalRevenue)}</div></div>
+      <div class="stat"><div class="label">רווח הקפה</div><div class="value">${fmt(totalCafeProfit)}</div></div>
+      <div class="stat"><div class="label">לתשלום לאמנים</div><div class="value">${fmt(totalArtistPayout)}</div></div>
+      <div class="stat"><div class="label">פריטים שנמכרו</div><div class="value">${itemsSold}</div></div>
+      <div class="stat"><div class="label">סוגי מוצרים</div><div class="value">${db.products.length}</div></div>
+      <div class="stat ${lowStock.length > 0 ? 'alert' : ''}"><div class="label">מלאי נמוך</div><div class="value">${lowStock.length}</div></div>
+      <div class="stat"><div class="label">שווי מלאי</div><div class="value">${fmt(totalStockValue)}</div></div>
+    </div>
+
+    <div class="card">
+      <h3 style="margin-top:0;">המוצרים החזקים החודש</h3>
+      ${topProducts.length === 0 ? `<p style="color:var(--muted);">עדיין לא היו מכירות החודש.</p>` : `
+        <table>
+          <thead><tr><th>מוצר</th><th>כמות</th><th>הכנסות</th></tr></thead>
+          <tbody>
+            ${topProducts.map(p => `<tr><td>${escapeHtml(p.name)}</td><td>${p.qty}</td><td>${fmt(p.revenue)}</td></tr>`).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+// ---------- Products ----------
+function renderProducts() {
+  const filter = window._productFilter || { q: '', cat: 'הכל', type: 'הכל' };
+  let list = db.products.slice().sort((a, b) => a.name.localeCompare(b.name, 'he'));
+  if (filter.q) {
+    const q = filter.q.toLowerCase();
+    list = list.filter(p => p.name.toLowerCase().includes(q) || (p.supplierName||'').toLowerCase().includes(q));
+  }
+  if (filter.cat !== 'הכל') list = list.filter(p => p.category === filter.cat);
+  if (filter.type !== 'הכל') list = list.filter(p => p.type === filter.type);
+
+  $('#manager-content').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+      <h2 style="margin:0;">מוצרים (${db.products.length})</h2>
+      <button class="btn" id="add-product">➕ הוספת מוצר</button>
+    </div>
+    <div class="filterbar">
+      <input type="search" placeholder="חיפוש..." value="${escapeHtml(filter.q)}" id="p-q">
+      <select id="p-cat">
+        <option>הכל</option>
+        ${db.categories.map(c => `<option ${filter.cat===c?'selected':''}>${escapeHtml(c)}</option>`).join('')}
+      </select>
+      <select id="p-type">
+        <option value="הכל">כל הסוגים</option>
+        <option value="cafe" ${filter.type==='cafe'?'selected':''}>של הקפה</option>
+        <option value="artist" ${filter.type==='artist'?'selected':''}>של אמנים</option>
+      </select>
+    </div>
+
+    ${list.length === 0 ? `
+      <div class="empty"><div class="icon">📦</div><p>אין מוצרים. אפשר להוסיף מוצר חדש.</p></div>
+    ` : `
+      <div class="card" style="padding:0; overflow-x:auto;">
+        <table>
+          <thead><tr>
+            <th></th><th>שם</th><th>קטגוריה</th><th>סוג</th><th>ספק/ית</th>
+            <th>עלות</th><th>מחיר</th><th>מלאי</th><th>פעולות</th>
+          </tr></thead>
+          <tbody>
+            ${list.map(p => {
+              const status = getStockStatus(p);
+              return `
+              <tr>
+                <td style="font-size:24px;">${p.emoji || '📦'}</td>
+                <td><strong>${escapeHtml(p.name)}</strong></td>
+                <td>${escapeHtml(p.category || '')}</td>
+                <td><span class="pill ${p.type}">${p.type==='artist'?'🎨 אמן/ית':'☕ הקפה'}</span></td>
+                <td>${escapeHtml(p.supplierName || '—')}</td>
+                <td>${p.type==='cafe' ? fmt(p.cost) : '—'}</td>
+                <td>${fmt(p.price)}</td>
+                <td style="color:${status==='out'?'var(--bad)':status==='low'?'var(--warn)':'var(--ink)'};">
+                  <strong>${p.stock}</strong>${p.minStock?` / מינ׳ ${p.minStock}`:''}
+                </td>
+                <td>
+                  <button class="btn small secondary" onclick="restockProduct('${p.id}')">📥 קבלה</button>
+                  <button class="btn small ghost" onclick="editProduct('${p.id}')">✏️</button>
+                  <button class="btn small ghost" onclick="deleteProduct('${p.id}')">🗑️</button>
+                </td>
+              </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    `}
+  `;
+
+  $('#p-q').oninput = e => { window._productFilter = { ...filter, q: e.target.value }; renderProducts(); };
+  $('#p-cat').onchange = e => { window._productFilter = { ...filter, cat: e.target.value }; renderProducts(); };
+  $('#p-type').onchange = e => { window._productFilter = { ...filter, type: e.target.value }; renderProducts(); };
+  $('#add-product').onclick = () => editProduct(null);
+}
+
+window.editProduct = function(id) {
+  const p = id ? db.products.find(x => x.id === id) : null;
+  const isNew = !p;
+  const data = p ? {...p} : {
+    id: uid(), name: '', category: db.categories[0], type: 'cafe', supplierId: '',
+    supplierName: '', cost: 0, price: 0, stock: 0, minStock: 0, emoji: '📦',
+    cafeShare: db.cafeShareDefault, description: '', addedDate: new Date().toISOString()
+  };
+
+  const draw = () => {
+    const supplierOptions = db.suppliers
+      .filter(s => data.type === 'artist' ? s.type === 'artist' : true)
+      .map(s => `<option value="${s.id}" ${data.supplierId===s.id?'selected':''}>${escapeHtml(s.name)}</option>`).join('');
+
+    modal(`
+      <h2>${isNew ? 'מוצר חדש' : 'עריכת מוצר'}</h2>
+      <div class="row">
+        <div class="field" style="flex:0 0 80px;">
+          <label>אייקון</label>
+          <input id="f-emoji" value="${escapeHtml(data.emoji)}" maxlength="3" style="text-align:center; font-size:22px;">
+        </div>
+        <div class="field" style="flex:1;">
+          <label>שם המוצר</label>
+          <input id="f-name" value="${escapeHtml(data.name)}" placeholder="למשל: גלוית 'דגי הים'">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>קטגוריה</label>
+          <select id="f-cat">${db.categories.map(c=>`<option ${data.category===c?'selected':''}>${escapeHtml(c)}</option>`).join('')}</select>
+        </div>
+        <div class="field">
+          <label>סוג</label>
+          <select id="f-type">
+            <option value="cafe" ${data.type==='cafe'?'selected':''}>הקפה רכש</option>
+            <option value="artist" ${data.type==='artist'?'selected':''}>של אמן/ית</option>
+          </select>
+        </div>
+      </div>
+      ${db.suppliers.length > 0 ? `
+        <div class="field">
+          <label>ספק/ית או אמן/ית</label>
+          <select id="f-supplier">
+            <option value="">— ללא —</option>
+            ${supplierOptions}
+          </select>
+        </div>
+      ` : `
+        <div class="field">
+          <label>שם הספק/ית או האמן/ית (אופציונלי)</label>
+          <input id="f-supplier-name" value="${escapeHtml(data.supplierName||'')}">
+        </div>
+      `}
+      <div class="row">
+        ${data.type === 'cafe' ? `
+          <div class="field"><label>עלות לקפה (₪)</label><input id="f-cost" type="number" min="0" step="0.5" value="${data.cost||0}"></div>
+        ` : `
+          <div class="field">
+            <label>אחוז לקפה</label>
+            <input id="f-share" type="number" min="0" max="100" value="${Math.round((data.cafeShare ?? db.cafeShareDefault)*100)}">
+          </div>
+        `}
+        <div class="field"><label>מחיר מכירה (₪)</label><input id="f-price" type="number" min="0" step="0.5" value="${data.price||0}"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>כמות במלאי</label><input id="f-stock" type="number" min="0" value="${data.stock||0}"></div>
+        <div class="field"><label>סף התראה למלאי נמוך</label><input id="f-minstock" type="number" min="0" value="${data.minStock||0}"></div>
+      </div>
+      <div class="field">
+        <label>תיאור / הערות (אופציונלי)</label>
+        <textarea id="f-desc" rows="2">${escapeHtml(data.description||'')}</textarea>
+      </div>
+      <div class="row" style="margin-top:14px;">
+        <button class="btn secondary" onclick="closeModal()">ביטול</button>
+        <button class="btn" id="save-product">שמירה</button>
+      </div>
+    `);
+
+    $('#f-type').onchange = e => { data.type = e.target.value; draw(); };
+
+    $('#save-product').onclick = () => {
+      const name = $('#f-name').value.trim();
+      if (!name) { toast('צריך שם למוצר'); return; }
+      data.name = name;
+      data.emoji = $('#f-emoji').value || '📦';
+      data.category = $('#f-cat').value;
+      data.type = $('#f-type').value;
+      data.price = parseFloat($('#f-price').value) || 0;
+      data.stock = parseInt($('#f-stock').value) || 0;
+      data.minStock = parseInt($('#f-minstock').value) || 0;
+      data.description = $('#f-desc').value.trim();
+
+      if (data.type === 'cafe') {
+        data.cost = parseFloat($('#f-cost').value) || 0;
+        data.cafeShare = null;
+      } else {
+        data.cafeShare = (parseFloat($('#f-share').value) || 0) / 100;
+        data.cost = 0;
+      }
+
+      const supplierSelect = $('#f-supplier');
+      if (supplierSelect) {
+        data.supplierId = supplierSelect.value || null;
+        const s = db.suppliers.find(x => x.id === data.supplierId);
+        data.supplierName = s ? s.name : '';
+      } else {
+        data.supplierName = $('#f-supplier-name').value.trim();
+        data.supplierId = null;
+      }
+
+      if (isNew) {
+        db.products.push(data);
+        if (data.stock > 0) {
+          db.inventoryLog.push({
+            id: uid(), productId: data.id, productName: data.name,
+            change: data.stock, reason: 'received', date: new Date().toISOString(),
+            notes: 'מלאי התחלתי'
+          });
+        }
+      } else {
+        Object.assign(p, data);
+      }
+      saveDB();
+      closeModal();
+      renderProducts();
+      toast(isNew ? 'נוסף מוצר' : 'עודכן');
+    };
+  };
+  draw();
+};
+
+window.restockProduct = function(id) {
+  const p = db.products.find(x => x.id === id);
+  if (!p) return;
+  modal(`
+    <h2>קבלת מלאי</h2>
+    <p><strong>${escapeHtml(p.name)}</strong> · במלאי כעת: ${p.stock}</p>
+    <div class="field">
+      <label>כמות שהתקבלה</label>
+      <input id="r-qty" type="number" min="1" value="1" autofocus>
+    </div>
+    <div class="field">
+      <label>הערה (אופציונלי)</label>
+      <input id="r-note" placeholder="למשל: התקבלה מספקית X">
+    </div>
+    <div class="row" style="margin-top:14px;">
+      <button class="btn secondary" onclick="closeModal()">ביטול</button>
+      <button class="btn" id="save-restock">הוספה למלאי</button>
+    </div>
+  `);
+  $('#save-restock').onclick = () => {
+    const qty = parseInt($('#r-qty').value) || 0;
+    if (qty <= 0) return;
+    const note = $('#r-note').value.trim();
+    p.stock += qty;
+    db.inventoryLog.push({
+      id: uid(), productId: p.id, productName: p.name,
+      change: qty, reason: 'received', date: new Date().toISOString(),
+      notes: note || 'קבלת מלאי'
+    });
+    saveDB();
+    closeModal();
+    renderProducts();
+    toast(`נוסף ${qty} למלאי`);
+  };
+};
+
+window.deleteProduct = function(id) {
+  const p = db.products.find(x => x.id === id);
+  if (!p) return;
+  if (!confirm(`למחוק את "${p.name}"? המכירות הקיימות יישמרו.`)) return;
+  db.products = db.products.filter(x => x.id !== id);
+  saveDB();
+  renderProducts();
+  toast('נמחק');
+};
+
+// ---------- Sales ----------
+function renderSales() {
+  const filter = window._salesFilter || { q: '', from: '', to: '', type: 'הכל' };
+  let list = db.sales.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  if (filter.q) {
+    const q = filter.q.toLowerCase();
+    list = list.filter(s => s.productName.toLowerCase().includes(q) || (s.supplierName||'').toLowerCase().includes(q) || (s.soldBy||'').toLowerCase().includes(q));
+  }
+  if (filter.from) list = list.filter(s => new Date(s.date) >= new Date(filter.from));
+  if (filter.to) {
+    const to = new Date(filter.to); to.setHours(23,59,59);
+    list = list.filter(s => new Date(s.date) <= to);
+  }
+  if (filter.type !== 'הכל') list = list.filter(s => s.type === filter.type);
+
+  const totalRevenue = list.reduce((a, s) => a + s.total, 0);
+  const totalCafeProfit = list.reduce((a, s) => a + s.cafeProfit, 0);
+  const totalArtistPayout = list.reduce((a, s) => a + s.supplierPayout, 0);
+
+  $('#manager-content').innerHTML = `
+    <h2 style="margin-top:0;">היסטוריית מכירות</h2>
+    <div class="filterbar">
+      <input type="search" placeholder="חיפוש..." value="${escapeHtml(filter.q)}" id="s-q">
+      <input type="date" value="${filter.from}" id="s-from">
+      <input type="date" value="${filter.to}" id="s-to">
+      <select id="s-type">
+        <option value="הכל">כל הסוגים</option>
+        <option value="cafe" ${filter.type==='cafe'?'selected':''}>הקפה</option>
+        <option value="artist" ${filter.type==='artist'?'selected':''}>אמנים</option>
+      </select>
+    </div>
+    <div class="grid grid-stats" style="margin-bottom:16px;">
+      <div class="stat"><div class="label">מכירות (${list.length})</div><div class="value">${fmt(totalRevenue)}</div></div>
+      <div class="stat good"><div class="label">רווח לקפה</div><div class="value">${fmt(totalCafeProfit)}</div></div>
+      <div class="stat"><div class="label">לאמנים</div><div class="value">${fmt(totalArtistPayout)}</div></div>
+    </div>
+    ${list.length === 0 ? `<div class="empty"><div class="icon">💰</div><p>אין מכירות בטווח שבחרת.</p></div>` : `
+      <div class="card" style="padding:0; overflow-x:auto;">
+        <table>
+          <thead><tr><th>תאריך</th><th>מוצר</th><th>סוג</th><th>אמן/ית/ספק</th><th>כמות</th><th>סה״כ</th><th>רווח קפה</th><th>לאמן/ית</th><th>מוכר/ת</th><th></th></tr></thead>
+          <tbody>
+            ${list.map(s => `
+              <tr>
+                <td>${fmtDateTime(s.date)}</td>
+                <td>${escapeHtml(s.productName)}</td>
+                <td><span class="pill ${s.type}">${s.type==='artist'?'אמן/ית':'הקפה'}</span></td>
+                <td>${escapeHtml(s.supplierName || '—')}</td>
+                <td>${s.qty}</td>
+                <td>${fmt(s.total)}</td>
+                <td>${fmt(s.cafeProfit)}</td>
+                <td>${s.type==='artist' ? fmt(s.supplierPayout) : '—'}</td>
+                <td>${escapeHtml(s.soldBy || '—')}</td>
+                <td><button class="btn small ghost" onclick="undoSale('${s.id}')" title="ביטול">↩️</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `}
+  `;
+
+  $('#s-q').oninput = e => { window._salesFilter = { ...filter, q: e.target.value }; renderSales(); };
+  $('#s-from').onchange = e => { window._salesFilter = { ...filter, from: e.target.value }; renderSales(); };
+  $('#s-to').onchange = e => { window._salesFilter = { ...filter, to: e.target.value }; renderSales(); };
+  $('#s-type').onchange = e => { window._salesFilter = { ...filter, type: e.target.value }; renderSales(); };
+}
+
+window.undoSale = function(id) {
+  const s = db.sales.find(x => x.id === id);
+  if (!s) return;
+  if (!confirm(`לבטל מכירה של ${s.qty} × ${s.productName}? המלאי יוחזר.`)) return;
+  const p = db.products.find(x => x.id === s.productId);
+  if (p) {
+    p.stock += s.qty;
+    db.inventoryLog.push({
+      id: uid(), productId: p.id, productName: p.name,
+      change: s.qty, reason: 'adjust', date: new Date().toISOString(),
+      notes: `החזרה - ביטול מכירה`
+    });
+  }
+  db.sales = db.sales.filter(x => x.id !== id);
+  saveDB();
+  renderSales();
+  toast('המכירה בוטלה');
+};
+
+// ---------- Suppliers / Artists ----------
+function renderSuppliers() {
+  $('#manager-content').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <h2 style="margin:0;">ספקים ואמנים (${db.suppliers.length})</h2>
+      <button class="btn" id="add-supplier">➕ הוספה</button>
+    </div>
+    ${db.suppliers.length === 0 ? `<div class="empty"><div class="icon">🎨</div><p>אין כאן עדיין ספקים או אמנים.</p></div>` : `
+      <div class="grid" style="grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));">
+        ${db.suppliers.map(s => {
+          const products = db.products.filter(p => p.supplierId === s.id);
+          const sales = db.sales.filter(sa => sa.supplierId === s.id);
+          const totalDue = sales.filter(sa => !sa.paidToSupplier).reduce((a, sa) => a + sa.supplierPayout, 0);
+          return `
+            <div class="card">
+              <div style="display:flex; justify-content:space-between; align-items:start;">
+                <div>
+                  <h3 style="margin:0 0 4px;">${escapeHtml(s.name)}</h3>
+                  <span class="pill ${s.type}">${s.type==='artist'?'🎨 אמן/ית':'☕ ספק/ית'}</span>
+                </div>
+                <div>
+                  <button class="btn small ghost" onclick="editSupplier('${s.id}')">✏️</button>
+                  <button class="btn small ghost" onclick="deleteSupplier('${s.id}')">🗑️</button>
+                </div>
+              </div>
+              ${s.contact ? `<p style="color:var(--muted); margin:8px 0; font-size:14px;">📞 ${escapeHtml(s.contact)}</p>` : ''}
+              ${s.notes ? `<p style="color:var(--muted); font-size:13px; margin:8px 0;">${escapeHtml(s.notes)}</p>` : ''}
+              <hr>
+              <div style="display:flex; justify-content:space-between; font-size:13px;">
+                <span>מוצרים: <strong>${products.length}</strong></span>
+                <span>מכירות: <strong>${sales.length}</strong></span>
+              </div>
+              ${s.type === 'artist' && totalDue > 0 ? `
+                <div style="margin-top:8px; padding:8px; background:#fdf2e8; border-radius:8px; font-size:13px;">
+                  💰 לתשלום: <strong>${fmt(totalDue)}</strong>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `}
+  `;
+  $('#add-supplier').onclick = () => editSupplier(null);
+}
+
+window.editSupplier = function(id) {
+  const s = id ? db.suppliers.find(x => x.id === id) : null;
+  const isNew = !s;
+  const data = s ? {...s} : { id: uid(), name: '', type: 'artist', contact: '', notes: '' };
+  modal(`
+    <h2>${isNew ? 'ספק/ית או אמן/ית חדש/ה' : 'עריכה'}</h2>
+    <div class="field"><label>שם</label><input id="sf-name" value="${escapeHtml(data.name)}" autofocus></div>
+    <div class="field">
+      <label>סוג</label>
+      <select id="sf-type">
+        <option value="artist" ${data.type==='artist'?'selected':''}>🎨 אמן/ית (קונסיגנציה)</option>
+        <option value="supplier" ${data.type==='supplier'?'selected':''}>☕ ספק/ית (הקפה רוכש)</option>
+      </select>
+    </div>
+    <div class="field"><label>טלפון / מייל</label><input id="sf-contact" value="${escapeHtml(data.contact||'')}"></div>
+    <div class="field"><label>הערות</label><textarea id="sf-notes" rows="3">${escapeHtml(data.notes||'')}</textarea></div>
+    <div class="row" style="margin-top:14px;">
+      <button class="btn secondary" onclick="closeModal()">ביטול</button>
+      <button class="btn" id="save-sup">שמירה</button>
+    </div>
+  `);
+  $('#save-sup').onclick = () => {
+    const name = $('#sf-name').value.trim();
+    if (!name) { toast('צריך שם'); return; }
+    data.name = name;
+    data.type = $('#sf-type').value;
+    data.contact = $('#sf-contact').value.trim();
+    data.notes = $('#sf-notes').value.trim();
+    if (isNew) db.suppliers.push(data);
+    else {
+      Object.assign(s, data);
+      // update product references
+      db.products.forEach(p => { if (p.supplierId === data.id) p.supplierName = data.name; });
+    }
+    saveDB();
+    closeModal();
+    renderSuppliers();
+    toast(isNew ? 'נוסף' : 'עודכן');
+  };
+};
+
+window.deleteSupplier = function(id) {
+  const s = db.suppliers.find(x => x.id === id);
+  if (!s) return;
+  const linked = db.products.filter(p => p.supplierId === id).length;
+  if (linked > 0) { toast(`לא ניתן למחוק - יש ${linked} מוצרים מקושרים`); return; }
+  if (!confirm(`למחוק את "${s.name}"?`)) return;
+  db.suppliers = db.suppliers.filter(x => x.id !== id);
+  saveDB();
+  renderSuppliers();
+};
+
+// ---------- Monthly Report ----------
+function renderMonthlyReport() {
+  const now = new Date();
+  const sel = window._reportMonth || { y: now.getFullYear(), m: now.getMonth() };
+  const start = new Date(sel.y, sel.m, 1);
+  const end = new Date(sel.y, sel.m + 1, 0, 23, 59, 59);
+  const monthSales = db.sales.filter(s => { const d = new Date(s.date); return d >= start && d <= end; });
+
+  // Group by supplier
+  const bySupplier = {};
+  const cafeSales = [];
+  monthSales.forEach(s => {
+    if (s.type === 'artist') {
+      const key = s.supplierId || s.supplierName || '_unknown';
+      if (!bySupplier[key]) bySupplier[key] = { name: s.supplierName || 'אמן/ית לא ידוע/ה', sales: [], totalRevenue: 0, totalPayout: 0, cafeShare: 0 };
+      bySupplier[key].sales.push(s);
+      bySupplier[key].totalRevenue += s.total;
+      bySupplier[key].totalPayout += s.supplierPayout;
+      bySupplier[key].cafeShare += s.cafeProfit;
+    } else {
+      cafeSales.push(s);
+    }
+  });
+
+  const cafeRevenue = cafeSales.reduce((a, s) => a + s.total, 0);
+  const cafeCost = cafeSales.reduce((a, s) => a + s.cost, 0);
+  const cafeProfit = cafeRevenue - cafeCost;
+  const cafeShareFromArtists = monthSales.filter(s => s.type==='artist').reduce((a,s)=>a+s.cafeProfit,0);
+
+  const monthName = start.toLocaleDateString('he-IL', { month: 'long', year: 'numeric' });
+
+  // Build month options (last 24 months)
+  const monthOptions = [];
+  for (let i = 0; i < 24; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    monthOptions.push({ y: d.getFullYear(), m: d.getMonth(), label: d.toLocaleDateString('he-IL', { month: 'long', year: 'numeric' }) });
+  }
+
+  $('#manager-content').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+      <h2 style="margin:0;">דוח חודשי</h2>
+      <div style="display:flex; gap:8px;">
+        <select id="rep-month" style="width:auto;">
+          ${monthOptions.map(o => `<option value="${o.y}-${o.m}" ${o.y===sel.y && o.m===sel.m ? 'selected':''}>${o.label}</option>`).join('')}
+        </select>
+        <button class="btn secondary" onclick="window.print()">🖨️ הדפסה</button>
+      </div>
+    </div>
+
+    <h3 style="margin-top:20px;">${monthName}</h3>
+
+    ${monthSales.length === 0 ? `<div class="empty"><div class="icon">📅</div><p>לא היו מכירות בחודש זה.</p></div>` : `
+      <div class="grid grid-stats">
+        <div class="stat good"><div class="label">סך הכנסות</div><div class="value">${fmt(monthSales.reduce((a,s)=>a+s.total,0))}</div></div>
+        <div class="stat"><div class="label">רווח קפה ממוצרים שלו</div><div class="value">${fmt(cafeProfit)}</div></div>
+        <div class="stat"><div class="label">חלק הקפה ממכירות אמנים</div><div class="value">${fmt(cafeShareFromArtists)}</div></div>
+        <div class="stat"><div class="label">סה״כ רווח קפה</div><div class="value">${fmt(cafeProfit + cafeShareFromArtists)}</div></div>
+      </div>
+
+      <h3 style="margin-top:24px;">תשלומים לאמנים ולספקים בקונסיגנציה</h3>
+      ${Object.values(bySupplier).length === 0 ? `<p style="color:var(--muted);">לא היו מכירות של מוצרי אמנים החודש.</p>` : `
+        <div class="card" style="padding:0; overflow-x:auto;">
+          <table>
+            <thead><tr><th>אמן/ית</th><th>מכירות</th><th>סה״כ הכנסות</th><th>חלק הקפה</th><th>לתשלום</th><th>סטטוס</th></tr></thead>
+            <tbody>
+              ${Object.entries(bySupplier).map(([key, info]) => {
+                const allPaid = info.sales.every(s => s.paidToSupplier);
+                return `
+                  <tr>
+                    <td><strong>${escapeHtml(info.name)}</strong></td>
+                    <td>${info.sales.length}</td>
+                    <td>${fmt(info.totalRevenue)}</td>
+                    <td>${fmt(info.cafeShare)}</td>
+                    <td><strong>${fmt(info.totalPayout)}</strong></td>
+                    <td>
+                      ${allPaid
+                        ? '<span class="pill cafe">✓ שולם</span>'
+                        : `<button class="btn small" onclick="markPaid('${key}','${sel.y}','${sel.m}')">סימון כשולם</button>`}
+                    </td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+
+      <h3 style="margin-top:24px;">פירוט מוצרי הקפה (${cafeSales.length})</h3>
+      ${cafeSales.length === 0 ? `<p style="color:var(--muted);">לא נמכרו החודש מוצרים שהקפה רכש.</p>` : `
+        <div class="card" style="padding:0; overflow-x:auto;">
+          <table>
+            <thead><tr><th>תאריך</th><th>מוצר</th><th>כמות</th><th>הכנסה</th><th>עלות</th><th>רווח</th></tr></thead>
+            <tbody>
+              ${cafeSales.map(s => `
+                <tr>
+                  <td>${fmtDate(s.date)}</td>
+                  <td>${escapeHtml(s.productName)}</td>
+                  <td>${s.qty}</td>
+                  <td>${fmt(s.total)}</td>
+                  <td>${fmt(s.cost)}</td>
+                  <td>${fmt(s.total - s.cost)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `}
+    `}
+  `;
+  $('#rep-month').onchange = e => {
+    const [y, m] = e.target.value.split('-').map(Number);
+    window._reportMonth = { y, m };
+    renderMonthlyReport();
+  };
+}
+
+window.markPaid = function(supplierKey, y, m) {
+  const start = new Date(+y, +m, 1);
+  const end = new Date(+y, +m + 1, 0, 23, 59, 59);
+  let count = 0;
+  db.sales.forEach(s => {
+    if (s.type !== 'artist') return;
+    const d = new Date(s.date);
+    if (d < start || d > end) return;
+    const k = s.supplierId || s.supplierName || '_unknown';
+    if (k === supplierKey) {
+      s.paidToSupplier = true;
+      count++;
+    }
+  });
+  saveDB();
+  renderMonthlyReport();
+  toast(`סומנו ${count} מכירות כשולמו`);
+};
+
+// ---------- Inventory Log ----------
+function renderInventoryLog() {
+  const list = db.inventoryLog.slice().sort((a, b) => new Date(b.date) - new Date(a.date));
+  const reasonLabel = { received: '📥 קבלה', sale: '💰 מכירה', adjust: '🔧 התאמה' };
+  $('#manager-content').innerHTML = `
+    <h2 style="margin-top:0;">היסטוריית מלאי (${list.length})</h2>
+    ${list.length === 0 ? `<div class="empty"><div class="icon">📋</div><p>עדיין לא היו תזוזות מלאי.</p></div>` : `
+      <div class="card" style="padding:0; overflow-x:auto;">
+        <table>
+          <thead><tr><th>תאריך</th><th>מוצר</th><th>שינוי</th><th>סיבה</th><th>הערות</th></tr></thead>
+          <tbody>
+            ${list.map(l => `
+              <tr>
+                <td>${fmtDateTime(l.date)}</td>
+                <td>${escapeHtml(l.productName)}</td>
+                <td style="color:${l.change>0?'var(--good)':'var(--bad)'}; font-weight:600;">${l.change>0?'+':''}${l.change}</td>
+                <td>${reasonLabel[l.reason] || l.reason}</td>
+                <td style="color:var(--muted);">${escapeHtml(l.notes||'')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `}
+  `;
+}
+
+// ---------- Settings ----------
+function renderSettings() {
+  $('#manager-content').innerHTML = `
+    <h2 style="margin-top:0;">הגדרות</h2>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h3 style="margin-top:0;">סיסמה</h3>
+      <div class="row">
+        <div class="field"><label>סיסמה נוכחית</label><input type="password" id="set-old"></div>
+        <div class="field"><label>סיסמה חדשה</label><input type="password" id="set-new"></div>
+      </div>
+      <button class="btn" id="change-pwd">שינוי סיסמה</button>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h3 style="margin-top:0;">אחוז ברירת מחדל לקפה (ממוצרי אמנים)</h3>
+      <div class="row">
+        <div class="field"><input type="number" min="0" max="100" id="set-share" value="${Math.round(db.cafeShareDefault*100)}"></div>
+        <div style="flex:0;"><button class="btn" id="save-share">שמירה</button></div>
+      </div>
+      <p style="color:var(--muted); font-size:13px; margin:4px 0 0;">משפיע רק על מוצרים חדשים. למוצרים קיימים אפשר לשנות בנפרד.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h3 style="margin-top:0;">קטגוריות</h3>
+      <div id="cats-list" style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;">
+        ${db.categories.map((c, i) => `
+          <span class="pill" style="padding:6px 12px; font-size:14px;">
+            ${escapeHtml(c)}
+            <button class="btn ghost" style="padding:0 4px; font-size:14px;" onclick="removeCat(${i})">×</button>
+          </span>
+        `).join('')}
+      </div>
+      <div class="row">
+        <div class="field"><input id="new-cat" placeholder="קטגוריה חדשה"></div>
+        <div style="flex:0;"><button class="btn" id="add-cat">הוספה</button></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <h3 style="margin-top:0;">גיבוי ושחזור</h3>
+      <p style="color:var(--muted); font-size:14px;">הנתונים נשמרים בדפדפן הזה. מומלץ לעשות גיבוי מדי פעם.</p>
+      <div class="row">
+        <button class="btn secondary" id="export">📤 ייצוא לקובץ</button>
+        <button class="btn secondary" id="import-btn">📥 ייבוא מקובץ</button>
+        <input type="file" id="import-file" accept=".json" style="display:none;">
+      </div>
+    </div>
+
+    <div class="card" style="border-color:var(--bad);">
+      <h3 style="margin-top:0; color:var(--bad);">אזור מסוכן</h3>
+      <button class="btn danger" id="reset-all">🗑️ מחיקת כל הנתונים</button>
+    </div>
+  `;
+
+  $('#change-pwd').onclick = () => {
+    if ($('#set-old').value !== db.password) { toast('סיסמה נוכחית שגויה'); return; }
+    const n = $('#set-new').value;
+    if (!n || n.length < 3) { toast('סיסמה חדשה צריכה לפחות 3 תווים'); return; }
+    db.password = n;
+    saveDB();
+    toast('הסיסמה שונתה');
+    $('#set-old').value = ''; $('#set-new').value = '';
+  };
+
+  $('#save-share').onclick = () => {
+    const v = parseFloat($('#set-share').value);
+    if (isNaN(v) || v < 0 || v > 100) { toast('ערך לא תקין'); return; }
+    db.cafeShareDefault = v / 100;
+    saveDB();
+    toast('נשמר');
+  };
+
+  $('#add-cat').onclick = () => {
+    const v = $('#new-cat').value.trim();
+    if (!v) return;
+    if (db.categories.includes(v)) { toast('כבר קיימת'); return; }
+    db.categories.push(v);
+    saveDB();
+    renderSettings();
+  };
+
+  $('#export').onclick = () => {
+    const blob = new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `cafe-shop-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+  };
+
+  $('#import-btn').onclick = () => $('#import-file').click();
+  $('#import-file').onchange = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        const data = JSON.parse(r.result);
+        if (!confirm('הייבוא יחליף את כל הנתונים הקיימים. להמשיך?')) return;
+        db = { ...defaultDB, ...data };
+        saveDB();
+        renderSettings();
+        toast('הנתונים יובאו');
+      } catch (err) { toast('קובץ לא תקין'); }
+    };
+    r.readAsText(f);
+  };
+
+  $('#reset-all').onclick = () => {
+    if (!confirm('בטוח? כל הנתונים יימחקו.')) return;
+    if (!confirm('זו פעולה בלתי הפיכה. למחוק?')) return;
+    localStorage.removeItem(STORAGE_KEY);
+    db = loadDB();
+    renderSettings();
+    toast('הנתונים נמחקו');
+  };
+}
+
+window.removeCat = function(i) {
+  const c = db.categories[i];
+  const used = db.products.filter(p => p.category === c).length;
+  if (used > 0) { toast(`לא ניתן - ${used} מוצרים בקטגוריה`); return; }
+  db.categories.splice(i, 1);
+  saveDB();
+  renderSettings();
+};
+
+// ============================================================
+// SEED DATA (only on first load)
+// ============================================================
+function seedIfEmpty() {
+  if (db.products.length > 0 || db.suppliers.length > 0) return;
+  const a1 = { id: uid(), name: 'מאיה ארטיסט', type: 'artist', contact: '050-1234567', notes: 'גלויות וציורים קטנים' };
+  const a2 = { id: uid(), name: 'יוסי קרמיקה', type: 'artist', contact: '052-9876543', notes: 'כדים וקעריות' };
+  db.suppliers.push(a1, a2);
+  db.products.push(
+    { id: uid(), name: 'גלוית ים', emoji: '🌊', category: 'גלויות', type: 'artist', supplierId: a1.id, supplierName: a1.name, cafeShare: 0.2, price: 15, stock: 20, minStock: 5, addedDate: new Date().toISOString() },
+    { id: uid(), name: 'ציור קטן ממוסגר', emoji: '🖼️', category: 'אמנות', type: 'artist', supplierId: a1.id, supplierName: a1.name, cafeShare: 0.2, price: 180, stock: 3, minStock: 1, addedDate: new Date().toISOString() },
+    { id: uid(), name: 'כד קרמיקה קטן', emoji: '🏺', category: 'קרמיקה', type: 'artist', supplierId: a2.id, supplierName: a2.name, cafeShare: 0.2, price: 95, stock: 4, minStock: 2, addedDate: new Date().toISOString() },
+    { id: uid(), name: 'חולצת וינטג׳', emoji: '👕', category: 'בגדי יד שניה', type: 'cafe', cost: 20, price: 50, stock: 8, minStock: 2, addedDate: new Date().toISOString() },
+    { id: uid(), name: 'ספר שירה משומש', emoji: '📖', category: 'ספרים', type: 'cafe', cost: 10, price: 25, stock: 12, minStock: 3, addedDate: new Date().toISOString() }
+  );
+  db.products.forEach(p => {
+    if (p.stock > 0) db.inventoryLog.push({
+      id: uid(), productId: p.id, productName: p.name,
+      change: p.stock, reason: 'received', date: new Date().toISOString(), notes: 'מלאי התחלתי'
+    });
+  });
+  saveDB();
+}
+
+seedIfEmpty();
+render();
+</script>
+
+</body>
+</html>
